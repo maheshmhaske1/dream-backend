@@ -144,8 +144,11 @@ const User = sq.define(
     duration: 
     { type: DataTypes.INTEGER, required: true },
     user_likes:
-     { type: DataTypes.INTEGER, default: 0 }
+     { type: DataTypes.INTEGER, default: 0 },
+     bio: { type: DataTypes.STRING, required: true },
+     externalLinks: [{ type: DataTypes.STRING, validate: /^https?:\/\//i }]
   },
+
   {
     timestamps: false,
     freezeTableName: true,

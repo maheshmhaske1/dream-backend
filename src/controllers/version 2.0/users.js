@@ -1,4 +1,5 @@
 const { User } = require("../../models");
+const { UserFriend}=require("../../models");
 const {Gift} =require("../../models")
 const fs = require('fs');
 const errorHandler = require("../../utils/errorObject");
@@ -323,6 +324,59 @@ const trackUserEndTime=async(req,res)=>{
 // }
 
 
+const sendMessage = async (req, res) => {
+  const { recipientId, message } = req.body;
+  const senderId = req.headers.senderId; // assuming the authenticated user is the sender
+
+  try {
+    // check if sender and recipient are friends
+    // const sender = await User.findById(senderId);
+    const sender=await UserFriend.findById(senderId);
+    if (!sender.friends.includes(recipientId)) {
+      return res.status(400).json({ message: 'You can only message your friends.' });
+    }
+
+    // check if sender has enough diamonds to send message
+    const diamonds = req.body.diamonds || 0; // default value is 0
+    const gift = req.body.gift || 0; // default value is 0
+    let messageCount = 1;
+    if (gift > 0) {
+      if (gift === 500) {
+        if (sender.gifts.includes(recipientId)) {
+          return res.status(400).json({ message: 'You can only send one 500-diamond gift to this user.' });
+        } else {
+          sender.gifts.push(recipientId);
+        }
+      } else if (gift === 900) {
+        messageCount = 2;
+      } else if (gift === 1350) {
+        messageCount = 3;
+      } else if (gift === 5000) {
+        sender.monthlyGift = true;
+      }
+    }
+    if (diamonds > 0 && sender.diamonds < diamonds * messageCount) {
+      return res.status(400).json({ message: 'You do not have enough diamonds to send this message.' });
+    }
+
+    // deduct diamonds from sender's account
+    if (diamonds > 0) {
+      sender.diamonds -= diamonds * messageCount;
+      await sender.save();
+    }
+
+    // send message to recipient
+    const recipient = await User.findById(recipientId);
+    recipient.messages.push({ sender: senderId, message });
+    await recipient.save();
+
+    res.json({ message: 'Message sent successfully.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
 module.exports = {
   signup,
   login,
@@ -334,5 +388,6 @@ module.exports = {
   handlediamonds,
   language_traslator,
   trackUserStartTime,
-  trackUserEndTime
+  trackUserEndTime,
+  sendMessage
 };

@@ -647,6 +647,39 @@ const videoStats = async (req, res, next) => {
 };
 
 
+const handleClicks=async (req, res) => {
+    const { id } = req.params;
+    const { clicks } = req.body;
+  
+    // Check for valid number of clicks
+    if (clicks < 2 || clicks > 4) {
+      return res.status(400).json({ error: 'Invalid number of clicks' });
+    }
+  
+    // Update clicks in database
+    try {
+      const video = await Video.findByIdAndUpdate(id, { clicks }, { new: true });
+      if (!video) {
+        return res.status(404).json({ error: 'Video not found' });
+      }
+      // Handle message sending based on clicks
+      let message;
+      if (clicks === 2) {
+        message = '(1) You have liked this video.';
+      } else if (clicks === 3) {
+        message = '(2) You have notified administration.';
+      } else if (clicks === 4) {
+        message = '(3) You have liked this video again.';
+      }
+      // Send response with message
+      res.status(200).json({ message });
+    } catch (err) {
+      console.error('Error updating clicks:', err);
+      res.status(500).json({ error: 'Error updating clicks' });
+    }
+}
+
+
 module.exports = {
   uploadVideo,
   allVideos,
