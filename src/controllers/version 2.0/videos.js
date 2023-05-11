@@ -1,4 +1,5 @@
-const { VideoLike, Comment, CommentReply, Tag, Like, User, Gift } = require("../../models");
+const { VideoLike, Comment, CommentReply, Tag, Like, User, Gift,Video } = require("../../models");
+
 const cloudinary = require("../../config/cloudinary");
 const fs = require("fs");
 const logger = require("../../utils/logger");
