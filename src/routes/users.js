@@ -35,6 +35,9 @@ router.post('/user-awarded-diamonds', userAuth,  userApis2.handlediamonds);
 router.post('/lang-translate', userAuth,  userApis2.language_traslator);
 router.post('/start-session/:user_id', userAuth,  userApis2.trackUserStartTime);
 router.post('/end-session/:user_id', userAuth,  userApis2.trackUserEndTime);
-// router.post('/private-message/:user_id', userAuth,  userApis2.trackUserEndTime);
+router.post('/private-message/:user_id', userAuth,  userApis2.sendMessageToPrivateAccount);
+router.post('/:id/links', userAuth,  userApis2.addExternalLinks);
+
+
 
 module.exports = router

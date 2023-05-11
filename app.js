@@ -1,6 +1,4 @@
-const { User,} = require('../dreamBackend-main/src/models/user');
-const {handledimonds}=require("./src/controllers/version 2.0/users")
-const {Gift}=require("./src/models")
+
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
@@ -32,56 +30,6 @@ app.use("", router);
 /****************** ERORR HANDLING */
 
 
-// app.use((req, res, next) => {
-//   if (req.session.userId) {
-//     const now = Date.now();
-//     const duration = now - req.session.lastActivity || 0;
-//     Activity.create({
-//       userId: req.session.userId,
-//       duration: duration
-//     });
-//     req.session.lastActivity = now;
-//   }
-//   next();
-// });
-
-// app.use('/like', (req, res, next) => {
-//   if (req.session.userId) {
-//     Activity.updateOne(
-//       { userId: req.session.userId },
-//       { $inc: { likes: 1 } },
-//       (err) => {
-//         if (err) {
-//           console.error('Error updating likes', err);
-//           res.status(500).json({ error: 'Internal server error' });
-//         } else {
-//           next();
-//         }
-//       }
-//     );
-//   } else {
-//     res.status(401).json({ error: 'Unauthorized' });
-//   }
-// });
-
-
-// app.get('/total-time', async (req, res) => {
-//   const userId = req.session.userId;
-//   const activities = await Activity.find({ userId: userId });
-//   const totalTime = activities.reduce((total, activity) => {
-//     return total + activity.duration;
-//   }, 0);
-//   res.json({ totalTime: totalTime });
-// });
-
-// app.get('/total-likes', async (req, res) => {
-//   const userId = req.session.userId;
-//   const activities = await Activity.find({ userId: userId });
-//   const totalLikes = activities.reduce((total, activity) => {
-//     return total + activity.likes;
-//   }, 0);
-//   res.json({ totalLikes: totalLikes });
-// });
 
 
 app.use((req, res, next) => {

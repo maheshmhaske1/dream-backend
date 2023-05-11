@@ -32,14 +32,14 @@ const Gift = sq.define(
     type: DataTypes.STRING,
     allowNull: true,
   },
-  gift_name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  gift_image:{
-    type: DataTypes.STRING,
-    allowNull: false,
-  }
+  // gift_name: {
+  //   type: DataTypes.STRING,
+  //   allowNull: false,
+  // },
+  // gift_image:{
+  //   type: DataTypes.STRING,
+  //   allowNull: false,
+  // }
 
 });
 

@@ -5,6 +5,7 @@ const addFriend = async (req, res, next) => {
   logger.info("FRIEND: ADD FRIEND API CALLED");
   const { friendId } = req.body
   const userId = req.userData.id
+  // console.log(userId,"userid")
   try {
     if (friendId) {
       if (friendId === userId) {
@@ -13,16 +14,16 @@ const addFriend = async (req, res, next) => {
         const checkFriend = await User.findOne({ where: { id: friendId } })
         if (checkFriend) {
           const isAdded = await UserFriend.findOne({
-            where: { userId: userId, friendId: friendId },
+            where: { user_id: userId, friend_id: friendId },
           })
           if (isAdded) {
             res.status(200).json({ response: 'already added', isFriend: true })
           } else {
             const newFriend = await UserFriend.create({
-              userId: userId,
-              friendId: friendId,
+              user_id: userId,
+              friend_id: friendId,
             })
-            res.status(200).json({ response: 'added', isFriend: true })
+            res.status(200).json({ response: 'added', isFriend: true,newFriend })
           }
         } else {
           res.status(404).json({ response: 'friend not found' })

@@ -7,6 +7,7 @@ const { JWT_KEY } = process.env;
 const logger = require('../../utils/logger');
 const jwt = require("jsonwebtoken");
 const cloudinary = require('../../config/cloudinary');
+const { use } = require("../../routes/likes");
 const signup = async (req, res, next) => {
   logger.info("VERSION 2.0 -> USER: SIGN UP API CALLED");
   try {
@@ -324,28 +325,43 @@ const trackUserEndTime=async(req,res)=>{
 // }
 
 
-const sendMessage = async (req, res) => {
+const sendMessageToPrivateAccount = async (req, res) => {
   const { recipientId, message } = req.body;
-  const senderId = req.headers.senderId; // assuming the authenticated user is the sender
-
+  const senderId = req.params.user_id; // assuming the authenticated user is the sender
   try {
     // check if sender and recipient are friends
     // const sender = await User.findById(senderId);
-    const sender=await UserFriend.findById(senderId);
-    if (!sender.friends.includes(recipientId)) {
+    const sender=await User.findOne({where:{id:senderId}});
+    const gifts=await Gift.findAll({where:{id:senderId}});
+    console.log(JSON.parse(JSON.stringify(gifts)),"sendre")
+    // const userFriend=await UserFriend.findAll({ where: { id: senderId }})
+    const allFriends = await UserFriend.findAll({
+      where: { id: senderId },
+      attributes: ['id'],
+      include: [
+        {
+          model: User,
+          attributes: ['id'],
+          as: 'friend',
+        },
+      ],
+    })
+
+// console.log( JSON.parse(JSON.stringify(allFriends)),"allfriend")
+
+    if (!allFriends.friend.includes(recipientId)) {
       return res.status(400).json({ message: 'You can only message your friends.' });
     }
-
     // check if sender has enough diamonds to send message
     const diamonds = req.body.diamonds || 0; // default value is 0
     const gift = req.body.gift || 0; // default value is 0
     let messageCount = 1;
     if (gift > 0) {
       if (gift === 500) {
-        if (sender.gifts.includes(recipientId)) {
+        if (gifts.includes(recipientId)) {
           return res.status(400).json({ message: 'You can only send one 500-diamond gift to this user.' });
         } else {
-          sender.gifts.push(recipientId);
+         gifts.push(recipientId);
         }
       } else if (gift === 900) {
         messageCount = 2;
@@ -366,7 +382,7 @@ const sendMessage = async (req, res) => {
     }
 
     // send message to recipient
-    const recipient = await User.findById(recipientId);
+    const recipient = await User.findOne(recipientId);
     recipient.messages.push({ sender: senderId, message });
     await recipient.save();
 
@@ -374,6 +390,22 @@ const sendMessage = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+const addExternalLinks=async (req, res) => {
+  const userId = req.params.id;
+  const link1 = req.body.link;
+  try {
+    const user = await User.findOne({where:{id:userId}});
+    console.log(user,"userdata")
+    // console.log(user.externalLinks,"linksarr")
+    user.externalLinks.push(link1);
+    await user.save();
+    res.json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -389,5 +421,6 @@ module.exports = {
   language_traslator,
   trackUserStartTime,
   trackUserEndTime,
-  sendMessage
+  sendMessageToPrivateAccount,
+  addExternalLinks
 };

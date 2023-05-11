@@ -145,8 +145,9 @@ const User = sq.define(
     { type: DataTypes.INTEGER, required: true },
     user_likes:
      { type: DataTypes.INTEGER, default: 0 },
-     bio: { type: DataTypes.STRING, required: true },
-     externalLinks: [{ type: DataTypes.STRING, validate: /^https?:\/\//i }]
+    //  bio: { type: DataTypes.STRING, required: true },
+     externalLinks: { type:  DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: true}
   },
 
   {

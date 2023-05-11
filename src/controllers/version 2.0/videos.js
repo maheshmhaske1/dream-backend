@@ -1,4 +1,4 @@
-const { Video, Comment, CommentReply, Tag, Like, User, Gift } = require("../../models");
+const { VideoLike, Comment, CommentReply, Tag, Like, User, Gift } = require("../../models");
 const cloudinary = require("../../config/cloudinary");
 const fs = require("fs");
 const logger = require("../../utils/logger");
@@ -648,27 +648,28 @@ const videoStats = async (req, res, next) => {
 
 
 const handleClicks=async (req, res) => {
-    const { id } = req.params;
+    const {video_id } = req.params;
     const { clicks } = req.body;
   
     // Check for valid number of clicks
     if (clicks < 2 || clicks > 4) {
       return res.status(400).json({ error: 'Invalid number of clicks' });
     }
-  
     // Update clicks in database
     try {
-      const video = await Video.findByIdAndUpdate(id, { clicks }, { new: true });
+      const video = await VideoLike.findOne({where:{id:video_id}});
       if (!video) {
         return res.status(404).json({ error: 'Video not found' });
       }
       // Handle message sending based on clicks
       let message;
       if (clicks === 2) {
+        video.clicks ++;
         message = '(1) You have liked this video.';
       } else if (clicks === 3) {
         message = '(2) You have notified administration.';
       } else if (clicks === 4) {
+        video.clicks++;
         message = '(3) You have liked this video again.';
       }
       // Send response with message
@@ -697,5 +698,6 @@ module.exports = {
   searchAllVideos,
   searchVideosFromProfile,
   userInvolvedVideosById,
-  videoStats
+  videoStats,
+  handleClicks
 };
